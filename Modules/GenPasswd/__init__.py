@@ -1,0 +1,1 @@
+from .genpasswd import genpasswd_router
