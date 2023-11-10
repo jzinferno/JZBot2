@@ -91,7 +91,7 @@ class SysInfo():
         return f'{self.readable(swap.used)} / {self.readable(swap.total)} ({round(swap.used / swap.total * 100, 2)}%)'
 
     def sysinfo_uptime(self) -> str:
-        hours, remainder = divmod(uptime.uptime(), 3600)
+        hours, remainder = divmod(int(uptime.uptime()), 3600)
         minutes, seconds = divmod(remainder, 60)
         days, hours = divmod(hours, 24)
 
