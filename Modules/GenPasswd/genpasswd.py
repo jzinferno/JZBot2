@@ -3,12 +3,6 @@ from aiogram.filters import Command
 from aiogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 import random, string
 
-async def EditBtns(cq, **args):
-    try:
-        await cq.message.edit_text(**args)
-    except:
-        pass
-
 genpasswd_router = Router()
 
 def genpasswd(length=8, types=[True, False, False, False]) -> str:
@@ -102,4 +96,8 @@ async def genpasswd_callback_query(cq: CallbackQuery):
     else:
         if True in types_active:
             message_text = "Generated: " + genpasswd(length=int(button_texts[4]), types=types_active)
-    await EditBtns(cq, text=message_text, reply_markup=genPasswdBtns(button_texts))
+
+    try:
+        await cq.message.edit_text(text=message_text, reply_markup=genPasswdBtns(button_texts))
+    except:
+        pass

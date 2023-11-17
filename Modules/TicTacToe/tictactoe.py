@@ -2,12 +2,6 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 
-async def EditBtns(cq, **args):
-    try:
-        await cq.message.edit_text(**args)
-    except:
-        pass
-
 tictactoe_router = Router()
 
 def ticTacToeBtns(values=['?', '?', '?', '?', '?', '?', '?', '?', '?']):
@@ -46,4 +40,7 @@ async def tictactoe_callback_query(cq: CallbackQuery):
     if cq.data.startswith('ttt_') and button_texts[int(cq.data[-1])] == '?':
         button_texts[int(cq.data[-1])] = symbol
 
-    await EditBtns(cq, text='tictactoe', reply_markup=ticTacToeBtns(button_texts))
+    try:
+        await cq.message.edit_text(text='tictactoe', reply_markup=ticTacToeBtns(button_texts))
+    except:
+        pass
