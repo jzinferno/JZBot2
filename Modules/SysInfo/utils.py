@@ -1,5 +1,5 @@
+from jzbot.shell import Shell
 import platform
-import asyncio
 import aiofiles
 import socket
 import getpass
@@ -18,19 +18,9 @@ class SysInfo():
             num /= 1024.0
         return '%.1f%s%s' % (num, 'Yi', suffix)
 
-    async def ShellCmd(self, command: str) -> str:
-        process = await asyncio.create_subprocess_shell(
-            cmd=command,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-            shell=True
-        )
-        stdout, _ = await process.communicate()
-        return stdout.decode(encoding='utf-8', errors='ignore')
-
     async def sysinfo_cpu(self) -> str:
         if self.windows:
-            return (await self.ShellCmd('wmic cpu get name')).split('\n')[1].strip() or self.unknown
+            return (await Shell('wmic cpu get name').stdout).split('\n')[1].strip() or self.unknown
         else:
             async with aiofiles.open('/proc/cpuinfo', mode='r') as f:
                 async for line in f:
@@ -40,9 +30,9 @@ class SysInfo():
 
     async def sysinfo_gpu(self) -> str:
         if self.windows:
-            return (await self.ShellCmd('wmic path win32_VideoController get name')).split('\n')[1].strip() or self.unknown
+            return (await Shell('wmic path win32_VideoController get name').stdout).split('\n')[1].strip() or self.unknown
         else:
-            for line in (await self.ShellCmd('lspci')).split('\n'):
+            for line in (await Shell('lspci').stdout).split('\n'):
                 if any(gpu in line for gpu in [' VGA ', ' 3D ', ' Display ', ' Non-VGA ']):
                     return line.split(':')[-1].strip()
         return self.unknown
@@ -51,7 +41,7 @@ class SysInfo():
         result = self.unknown
         try:
             if self.windows:
-                result = (await self.ShellCmd('wmic os get caption')).split('\n')[1].strip() or self.unknown
+                result = (await Shell('wmic os get caption').stdout).split('\n')[1].strip() or self.unknown
             else:
                 async with aiofiles.open('/etc/os-release', mode='r') as f:
                     async for line in f:
@@ -62,10 +52,10 @@ class SysInfo():
         return result
 
     async def sysinfo_neofetch(self) -> str:
-        return '\n'.join([line for line in (await self.ShellCmd('neofetch --stdout')).split('\n') if ':' in line]) or self.unknown
+        return '\n'.join([line for line in (await Shell('neofetch --stdout').stdout).split('\n') if ':' in line]) or self.unknown
 
     async def sysinfo_uname(self) -> str:
-        return await self.ShellCmd('uname -a') or self.unknown
+        return await Shell('uname -a').stdout or self.unknown
 
     def sysinfo_arch(self) -> str:
         return platform.uname().machine
